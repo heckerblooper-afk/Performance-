@@ -24,12 +24,21 @@ jobs:
         run: chmod +x ./gradlew
         if: hashFiles('./gradlew') != ''
 
+      - name: Show Java and Gradle versions
+        run: |
+          java -version
+          if [ -f ./gradlew ]; then
+            ./gradlew --version
+          else
+            gradle --version || true
+          fi
+
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace --info --no-daemon
         if: hashFiles('./gradlew') != ''
 
       - name: Build with Gradle (Wrapper not found - using gradle command)
-        run: gradle build
+        run: gradle build --stacktrace --info --no-daemon
         if: hashFiles('./gradlew') == ''
 
       - name: Upload build artifacts (JARs)

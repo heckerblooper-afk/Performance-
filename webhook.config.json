@@ -1,0 +1,16 @@
+{
+  "webhook_config": {
+    "name": "Web Hook",
+    "events": [
+      "push",
+      "pull_request",
+      "issues"
+    ],
+    "active": true,
+    "config": {
+      "url": "https://your-webhook-endpoint.com/webhook",
+      "content_type": "json",
+      "insecure_ssl": "0"
+    }
+  }
+}

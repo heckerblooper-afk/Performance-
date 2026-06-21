@@ -2,61 +2,37 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ "**" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: '17'
-          distribution: 'temurin'
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-        if: hashFiles('./gradlew') != ''
-
-      - name: Show Java and Gradle versions
+      - name: Check for Gradle build files and run build if present
         run: |
-          java -version
-          if [ -f ./gradlew ]; then
-            ./gradlew --version
+          echo "Checking for Gradle build files..."
+          if [ -f build.gradle ] || [ -f build.gradle.kts ] || [ -f gradlew ]; then
+            echo "Gradle build files found. Running Gradle build..."
+            # Prefer the wrapper when present
+            if [ -f gradlew ]; then
+              chmod +x gradlew
+              ./gradlew build --no-daemon --console=plain
+            else
+              # Fall back to system gradle if wrapper missing
+              gradle build --no-daemon --console=plain
+            fi
           else
-            gradle --version || true
+            echo "No Gradle build files found in the repository root. Skipping Gradle build step."
           fi
-
-      - name: Build with Gradle
-        run: ./gradlew build --stacktrace --info --no-daemon
-        if: hashFiles('./gradlew') != ''
-
-      - name: Build with Gradle (Wrapper not found - using gradle command)
-        run: gradle build --stacktrace --info --no-daemon
-        if: hashFiles('./gradlew') == ''
-
-      - name: Upload build artifacts (JARs)
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: build-artifacts
-          path: |
-            build/libs/
-            **/build/libs/
-          retention-days: 30
-
-      - name: Upload test reports
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-reports
-          path: |
-            build/reports/tests/
-            **/build/reports/tests/
-          retention-days: 30

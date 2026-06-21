@@ -1,0 +1,7 @@
+id=zygisk_perf_suite
+name=Zygisk Performance Suite
+version=1.0.0
+versionCode=1
+author=YourName
+description=CPU/GPU tuning, per-app spoofing, and FPS tweaks via Zygisk hooks
+minMagisk=24000
